@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    editorwindow.cpp \
     lua/lapi.c \
     lua/lauxlib.c \
     lua/lbaselib.c \
@@ -52,6 +53,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    editorwindow.h \
     lua/lapi.h \
     lua/lauxlib.h \
     lua/lcode.h \
@@ -78,6 +80,7 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
+    editorwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.
