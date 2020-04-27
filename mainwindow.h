@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QFile>
+extern "C" {
+#include "lua/lua.h"
+#include "lua/lundump.h"
+}
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,5 +27,7 @@ private:
 	void openLua(QFile &file);
 
     Ui::MainWindow *ui;
+	lua_State *L;
+	Proto *proto;
 };
 #endif // MAINWINDOW_H

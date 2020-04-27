@@ -17,25 +17,26 @@
 #include "lopcodes.h"
 
 int wmap[256] = {0xFF};
+int womap[256] = { 0xFF };
 
 void init_wmap()
 {
-	//wmap[_OP_GETTABLE] = 0;
-	wmap[OP_VARARG] = 1;
-	wmap[OP_CONCAT] = 2;
-	wmap[OP_ADD] = 3;
-	wmap[OP_MUL] = 4;
-	wmap[OP_TESTSET] = 5;
-	wmap[OP_LOADNIL] = 6;
-	wmap[OP_TAILCALL] = 7;
-	//wmap[_OP_SETUPVAL] = 8;
-	//wmap[_OP_SETTABLE] = 9;
+	wmap[OP_UNM] = 0x00;
+	wmap[OP_VARARG] = 0x01;
+	wmap[OP_CONCAT] = 0x02;
+	wmap[OP_ADD] = 0x03;
+	wmap[OP_MUL] = 0x04;
+	wmap[OP_TESTSET] = 0x05;
+	wmap[OP_LOADNIL] = 0x06;
+	wmap[OP_TAILCALL] = 0x07;
+	//wmap[_OP_SETUPVAL] = 0x08;
+	//wmap[_OP_SETTABLE] = 0x09;
 	wmap[OP_LEN] = 0x0A;
 	wmap[OP_NEWTABLE] = 0x0B;
 	wmap[OP_SETTABLE] = 0x0C;
 	wmap[OP_SUB] = 0x0D;
 	wmap[OP_GETTABLE] = 0x0E;
-	wmap[OP_UNM] = 0x0F;
+	//wmap[_OP_UNM_no] = 0x0F;
 	wmap[OP_FORPREP] = 0x10;
 	wmap[OP_CLOSE] = 0x11;
 	wmap[OP_MOVE] = 0x12;
@@ -58,6 +59,45 @@ void init_wmap()
 	wmap[OP_EQ] = 0x23;
 	wmap[OP_SELF] = 0x24;
 	wmap[OP_CLOSURE] = 0x25;
+
+	womap[0x00] = OP_UNM;
+	womap[0x01] = OP_VARARG;
+	womap[0x02] = OP_CONCAT;
+	womap[0x03] = OP_ADD;
+	womap[0x04] = OP_MUL;
+	womap[0x05] = OP_TESTSET;
+	womap[0x06] = OP_LOADNIL;
+	womap[0x07] = OP_TAILCALL;
+	//womap[0x08] = _OP_SETUPVAL;
+	//womap[0x09] = _OP_SETTABLE;
+	womap[0x0A] = OP_LEN;
+	womap[0x0B] = OP_NEWTABLE;
+	womap[0x0C] = OP_SETTABLE;
+	womap[0x0D] = OP_SUB;
+	womap[0x0E] = OP_GETTABLE;
+	//womap[0x0F] = _OP_UNM_no;
+	womap[0x10] = OP_FORPREP;
+	womap[0x11] = OP_CLOSE;
+	womap[0x12] = OP_MOVE;
+	womap[0x13] = OP_GETUPVAL;
+	womap[0x14] = OP_FORLOOP;
+	womap[0x15] = OP_LT;
+	womap[0x16] = OP_TFORLOOP;
+	//womap[0x17] = _OP_LOADBOOL;
+	womap[0x18] = OP_TEST;
+	womap[0x19] = OP_LOADK;
+	womap[0x1A] = OP_JMP;
+	womap[0x1B] = OP_SETLIST;
+	womap[0x1C] = OP_DIV;
+	womap[0x1D] = OP_GETGLOBAL;
+	womap[0x1E] = OP_RETURN;
+	womap[0x1F] = OP_MOD;
+	womap[0x20] = OP_SETGLOBAL;
+	womap[0x21] = OP_LE;
+	womap[0x22] = OP_CALL;
+	womap[0x23] = OP_EQ;
+	womap[0x24] = OP_SELF;
+	womap[0x25] = OP_CLOSURE;
 }
 
 typedef struct {
