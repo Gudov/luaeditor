@@ -168,12 +168,16 @@ static void LoadConstants(LoadState* S, Proto* f)
    	setnilvalue(o);
 	break;
    case LUA_TBOOLEAN:
-   {	int n;
+   {
+		int n;
 		LoadVar(S, n);
-		char buff[255];
-		sprintf(buff, "0x%X", n);
-		TString *wstr = luaS_newlstr(S->L, buff, strlen(buff));
-		setsvalue2n(S->L, o, wstr); 
+		//char buff[255];
+		//sprintf(buff, "0x%X", n);
+		//TString *wstr = luaS_newlstr(S->L, buff, strlen(buff));
+		//setsvalue2n(S->L, o, wstr);
+		//setnvalue(o, n);
+		o->tt = LUA_TBOOLEAN;
+		o->value.b = n;
    }
    	//setbvalue(o,LoadChar(S));
    /*{	
@@ -238,7 +242,7 @@ static Proto* LoadFunction(LoadState* S, TString* p)
  LoadCode(S,f);
  LoadConstants(S,f);
  LoadDebug(S,f);
- IF (!luaG_checkcode(f), "bad code");
+ //IF (!luaG_checkcode(f), "bad code");
  S->L->top--;
  return f;
 }

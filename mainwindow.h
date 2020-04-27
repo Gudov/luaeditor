@@ -22,6 +22,8 @@ public:
 
 public slots:
     void openFileInput();
+	void openFileSave();
+	void fileSave();
 
 private:
 	void openLua(QString fileName);
@@ -29,5 +31,6 @@ private:
     Ui::MainWindow *ui;
 	lua_State *L;
 	Proto *proto;
+	QString fileName;
 };
 #endif // MAINWINDOW_H

@@ -20,8 +20,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
 	L = luaL_newstate();
+	lastLoadedProto = nullptr;
 
 	connect(this->ui->actionOpen, &QAction::triggered, this, &MainWindow::openFileInput);
+	connect(this->ui->actionSave_as, &QAction::triggered, this, &MainWindow::openFileSave);
+	connect(this->ui->actionSave, &QAction::triggered, this, &MainWindow::fileSave);
 }
 
 MainWindow::~MainWindow()
@@ -53,5 +56,42 @@ void MainWindow::openLua(QString fileName)
 
 	luaL_loadbuffer(L, data, fsize, "?");
 
+	if(!lastLoadedProto) {
+		QMessageBox msg;
+		msg.setText(lua_tostring(L, -1));
+		msg.exec();
+		return;
+	}
+	this->fileName = fileName;
 	this->proto = lastLoadedProto;
+	this->ui->actionSave->setEnabled(true);
+	this->ui->actionSave_as->setEnabled(true);
+}
+
+void MainWindow::openFileSave()
+{
+	this->fileName = QFileDialog::getSaveFileName(this,
+		tr("save lua"), "C:\\war2", tr("*.lua"));
+	this->fileSave();
+}
+
+static int writer (lua_State *L, const void* b, size_t size, void* B) {
+	(void)L;
+	auto vec = (std::vector<uint8_t>*)B;
+	auto data = ((uint8_t*)b);
+	for(size_t i = 0; i < size; i++) {
+		vec->push_back(data[i]);
+	}
+	//luaL_addlstring((luaL_Buffer*) B, (const char *)b, size);
+	return 0;
+}
+
+void MainWindow::fileSave()
+{
+	std::vector<uint8_t> buff;
+	luaU_dump(L, this->proto, writer, &buff, 0);
+
+	FILE *f = fopen(fileName.toUtf8().data(), "wb");
+	fwrite(buff.data(), 1, buff.size(), f);
+	fclose(f);
 }
