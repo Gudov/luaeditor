@@ -24,7 +24,7 @@ public slots:
     void openFileInput();
 
 private:
-	void openLua(QFile &file);
+	void openLua(QString fileName);
 
     Ui::MainWindow *ui;
 	lua_State *L;

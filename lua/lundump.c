@@ -5,6 +5,7 @@
 */
 
 #include <string.h>
+#include <stdio.h>
 
 #define lundump_c
 #define LUA_CORE
@@ -120,12 +121,32 @@ static TString* LoadString(LoadState* S)
  }
 }
 
+extern int womap[256];
+
+extern void init_wmap();
+
 static void LoadCode(LoadState* S, Proto* f)
 {
  int n=LoadInt(S);
+ printf("code size: %d\n", n);
  f->code=luaM_newvector(S->L,n,Instruction);
  f->sizecode=n;
  LoadVector(S,f->code,n,sizeof(Instruction));
+
+ init_wmap();
+
+ for ( int i = 0; i <= n; i++ )
+ {
+	 int original = ((unsigned int)(f->code[i])) & 0x3F;
+	 if (womap[original] != 0xFF)
+	 {
+		 (unsigned int)(f->code[i]) += womap[original] - original;
+	 }
+	 else
+	 {
+		 printf("fail convert op %d\n", original);
+	 }
+ }
 }
 
 static Proto* LoadFunction(LoadState* S, TString* p);
@@ -147,10 +168,19 @@ static void LoadConstants(LoadState* S, Proto* f)
    	setnilvalue(o);
 	break;
    case LUA_TBOOLEAN:
+   {	int n;
+		LoadVar(S, n);
+		char buff[255];
+		sprintf(buff, "0x%X", n);
+		TString *wstr = luaS_newlstr(S->L, buff, strlen(buff));
+		setsvalue2n(S->L, o, wstr); 
+   }
    	//setbvalue(o,LoadChar(S));
-   {	TValue *i_o = (o); 
-		i_o->value.b = (LoadNumber(S));
-		i_o->tt = LUA_TBOOLEAN; }
+   /*{	
+	   char buff[255] = {0};
+	   sprintf(buff, "%X", LoadNumber(S));
+	   setsvalue2n(S->L, o, buff);
+   }*/
 	break;
    case LUA_TNUMBER:
 	setnvalue(o,LoadNumber(S));
@@ -219,7 +249,7 @@ static void LoadHeader(LoadState* S)
  //char s[LUAC_HEADERSIZE];
  //luaU_header(h);
  //LoadBlock(S,s,LUAC_HEADERSIZE);
-	char s[1];
+	char s[2];
 	LoadBlock(S,s,1);
  //IF (memcmp(h,s,LUAC_HEADERSIZE)!=0, "bad header");
 }

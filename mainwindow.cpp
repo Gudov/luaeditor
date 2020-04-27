@@ -2,12 +2,15 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include <QFile>
+#include <QMessageBox>
 extern "C" {
 #include "lua/lundump.h"
 #include "lua/lobject.h"
 #include "lua/lua.h"
 #include "lua/lualib.h"
 #include "lua/lauxlib.h"
+
+extern Proto *lastLoadedProto;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -33,30 +36,22 @@ void MainWindow::openFileInput()
 
 	QFile file(fileName);
 	if (file.exists()) {
-		file.open(QIODevice::ReadOnly | QIODevice::Text);
-		this->openLua(file);
+		this->openLua(fileName);
 	}
 }
 
-typedef struct LoadS {
-  const char *s;
-  size_t size;
-} LoadS;
-
-static const char *getS (lua_State *L, void *ud, size_t *size) {
-  LoadS *ls = (LoadS *)ud;
-  (void)L;
-  if (ls->size == 0) return NULL;
-  *size = ls->size;
-  ls->size = 0;
-  return ls->s;
-}
-
-extern Proto *lastLoadedProto;
-void MainWindow::openLua(QFile &file)
+void MainWindow::openLua(QString fileName)
 {
-	QByteArray raw = file.readAll();
+	FILE *f = fopen(fileName.toUtf8().data(), "rb");
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);
 
-	luaL_loadbuffer(L, raw.data(), raw.size(), "?");
+	char *data = (char*)malloc(fsize + 1);
+	fread(data, 1, fsize, f);
+	fclose(f);
+
+	luaL_loadbuffer(L, data, fsize, "?");
+
 	this->proto = lastLoadedProto;
 }

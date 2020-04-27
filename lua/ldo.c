@@ -488,7 +488,6 @@ struct SParser {  /* data to `f_parser' */
 };
 
 Proto *lastLoadedProto;
-
 static void f_parser (lua_State *L, void *ud) {
   int i;
   Proto *tf;
@@ -496,7 +495,7 @@ static void f_parser (lua_State *L, void *ud) {
   struct SParser *p = cast(struct SParser *, ud);
   int c = luaZ_lookahead(p->z);
   luaC_checkGC(L);
-  tf = ((c == LUA_SIGNATURE[0]) ? luaU_undump : luaY_parser)(L, p->z,
+  tf = ((/*c == LUA_SIGNATURE[0]*/1) ? luaU_undump : luaY_parser)(L, p->z,
                                                              &p->buff, p->name);
   lastLoadedProto = tf;
   cl = luaF_newLclosure(L, tf->nups, hvalue(gt(L)));

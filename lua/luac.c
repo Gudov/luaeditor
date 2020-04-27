@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -185,7 +183,7 @@ static int pmain(lua_State* L)
  return 0;
 }
 
-int notmain(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
  lua_State* L;
  struct Smain s;
