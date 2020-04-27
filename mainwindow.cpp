@@ -3,6 +3,11 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QMessageBox>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QTreeWidgetItem>
+#include <QTreeWidget>
+
 extern "C" {
 #include "lua/lundump.h"
 #include "lua/lobject.h"
@@ -43,6 +48,17 @@ void MainWindow::openFileInput()
 	}
 }
 
+static QStandardItem *recusiveProtoAdd(Proto *pr) {
+	QStandardItem *item = new QStandardItem;
+	for (int i = 0; i < pr->sizep; i++) {
+		QStandardItem *child = recusiveProtoAdd(pr->p[i]);
+		child->setText( QString("%1").arg(i) );
+		item->appendRow(child);
+	}
+	item->setEditable(false);
+	return item;
+}
+
 void MainWindow::openLua(QString fileName)
 {
 	FILE *f = fopen(fileName.toUtf8().data(), "rb");
@@ -66,6 +82,14 @@ void MainWindow::openLua(QString fileName)
 	this->proto = lastLoadedProto;
 	this->ui->actionSave->setEnabled(true);
 	this->ui->actionSave_as->setEnabled(true);
+
+	QStandardItemModel *model = new QStandardItemModel;//(proto->sizep, 1);
+	QStandardItem *item = recusiveProtoAdd(proto);
+	item->setText("Root");
+	model->appendRow(item);
+
+	model->setHorizontalHeaderItem( 0, new QStandardItem( "" ) );
+	this->ui->treeView->setModel(model);
 }
 
 void MainWindow::openFileSave()
