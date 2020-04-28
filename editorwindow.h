@@ -3,6 +3,14 @@
 
 #include <QMainWindow>
 
+extern "C" {
+#include "lua/lundump.h"
+#include "lua/lobject.h"
+#include "lua/lua.h"
+#include "lua/lualib.h"
+#include "lua/lauxlib.h"
+}
+
 namespace Ui {
 class EditorWindow;
 }
@@ -14,6 +22,8 @@ class EditorWindow : public QMainWindow
 public:
 	explicit EditorWindow(QWidget *parent = nullptr);
 	~EditorWindow();
+
+	void init(Proto *pr);
 
 private:
 	Ui::EditorWindow *ui;

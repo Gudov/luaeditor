@@ -25,6 +25,8 @@ public slots:
 	void openFileSave();
 	void fileSave();
 
+	void openEditor(const QModelIndex &index);
+
 private:
 	void openLua(QString fileName);
 

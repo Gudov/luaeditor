@@ -7,6 +7,7 @@
 #include <QStandardItemModel>
 #include <QTreeWidgetItem>
 #include <QTreeWidget>
+#include "editorwindow.h"
 
 extern "C" {
 #include "lua/lundump.h"
@@ -17,6 +18,8 @@ extern "C" {
 
 extern Proto *lastLoadedProto;
 }
+
+Q_DECLARE_METATYPE(Proto*);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -30,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(this->ui->actionOpen, &QAction::triggered, this, &MainWindow::openFileInput);
 	connect(this->ui->actionSave_as, &QAction::triggered, this, &MainWindow::openFileSave);
 	connect(this->ui->actionSave, &QAction::triggered, this, &MainWindow::fileSave);
+	connect(this->ui->treeView, &QTreeView::clicked, this, &MainWindow::openEditor);
 }
 
 MainWindow::~MainWindow()
@@ -56,6 +60,7 @@ static QStandardItem *recusiveProtoAdd(Proto *pr) {
 		item->appendRow(child);
 	}
 	item->setEditable(false);
+	item->setData(QVariant::fromValue(pr));
 	return item;
 }
 
@@ -90,6 +95,15 @@ void MainWindow::openLua(QString fileName)
 
 	model->setHorizontalHeaderItem( 0, new QStandardItem( "" ) );
 	this->ui->treeView->setModel(model);
+}
+
+void MainWindow::openEditor(const QModelIndex &index)
+{
+	QStandardItem *item = ((QStandardItemModel*)this->ui->treeView->model())->itemFromIndex(index);
+	Proto *pr = item->data().value<Proto*>();
+	EditorWindow *win = new EditorWindow;
+	win->init(pr);
+	win->show();
 }
 
 void MainWindow::openFileSave()
