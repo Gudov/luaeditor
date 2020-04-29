@@ -44,7 +44,7 @@ void init_wmap()
 	wmap[OP_FORLOOP] = 0x14;
 	wmap[OP_LT] = 0x15;
 	wmap[OP_TFORLOOP] = 0x16;
-	//wmap[_OP_LOADBOOL] = 0x17;
+		wmap[OP_LOADBOOL] = 0x17;
 	wmap[OP_TEST] = 0x18;
 	wmap[OP_LOADK] = 0x19;
 	wmap[OP_JMP] = 0x1A;
@@ -83,7 +83,7 @@ void init_wmap()
 	womap[0x14] = OP_FORLOOP;
 	womap[0x15] = OP_LT;
 	womap[0x16] = OP_TFORLOOP;
-	//womap[0x17] = _OP_LOADBOOL;
+		womap[0x17] = OP_LOADBOOL;
 	womap[0x18] = OP_TEST;
 	womap[0x19] = OP_LOADK;
 	womap[0x1A] = OP_JMP;

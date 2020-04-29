@@ -26,6 +26,9 @@ public:
 	void init(Proto *pr);
 
 private:
+	void initCode(Proto *pr);
+	void initConst(Proto *pr);
+
 	Ui::EditorWindow *ui;
 };
 

@@ -14,6 +14,7 @@ extern "C" {
 #include "lua/lualib.h"
 #include "lua/lauxlib.h"
 #include "lua/lopcodes.h"
+#include "lua/ltm.h"
 }
 
 Q_DECLARE_METATYPE(Instruction*);
@@ -44,9 +45,21 @@ struct ItemOp {
 	Instruction *instr;
 };
 
+struct ItemConst {
+	TValue *c;
+	QStandardItem *typeItem;
+};
+
 Q_DECLARE_METATYPE(ItemOp);
+Q_DECLARE_METATYPE(ItemConst);
 
 void EditorWindow::init(Proto *pr)
+{
+	this->initCode(pr);
+	this->initConst(pr);
+}
+
+void EditorWindow::initCode(Proto *pr)
 {
 	QStandardItemModel *model = new QStandardItemModel(pr->sizecode, 7);
 
@@ -99,4 +112,71 @@ void EditorWindow::init(Proto *pr)
 	this->ui->tableView->setColumnWidth(4, 10);
 	this->ui->tableView->setColumnWidth(5, 10);
 	this->ui->tableView->setColumnWidth(6, 10);
+}
+
+
+void EditorWindow::initConst(Proto *pr)
+{
+	QStandardItemModel *model = new QStandardItemModel(pr->sizecode, 7);
+	for (int i = 0; i < pr->sizek; i++) {
+		TValue *v = &pr->k[i];
+		QStandardItem *type = new QStandardItem( lua_typename(nullptr, v->tt) );
+		QStandardItem *value = new QStandardItem;
+		QString valueText;
+		switch(v->tt) {
+			case LUA_TNUMBER: valueText = QString("%L1").arg(v->value.n); break;
+			case LUA_TSTRING: valueText = QString(getstr((TString*)v->value.p)); break;
+			case LUA_TBOOLEAN: valueText = QString("%1").arg(v->value.b, 16); break;
+		default:
+			valueText = "wrong type";
+		}
+		value->setText(valueText);
+
+		if (valueText != "wrong type") {
+			value->setData(QVariant::fromValue(ItemConst{v, type}));
+		} else {
+			value->setData(QVariant::fromValue(ItemConst{nullptr, nullptr}));
+		}
+		type->setData(QVariant::fromValue(ItemConst{nullptr, nullptr}));
+
+		model->setItem(i, 0, type);
+		model->setItem(i, 1, value);
+	}
+
+	connect(model, &QStandardItemModel::itemChanged, this, [](QStandardItem *item) {
+		if(item->data().value<ItemConst>().typeItem == nullptr) {
+			return;
+		}
+
+		ItemConst itConst = item->data().value<ItemConst>();
+
+		int type = -1;
+		for(int i = 0; i < 7; i++) {
+			if( itConst.typeItem->text() == luaT_typenames[i] ) {
+				type = i;
+				break;
+			}
+		}
+
+		if (type == -1) {
+			itConst.typeItem->setText("type error");
+			return;
+		}
+
+		switch(type) {
+		case LUA_TNUMBER: setnvalue(itConst.c, item->text().toFloat()); break;
+		case LUA_TSTRING: {
+				QString *s = new QString(item->text());
+				itConst.c->tt = LUA_TSTRING;
+				itConst.c->value.p = s->toUtf8().data();
+			};
+			break;
+		case LUA_TBOOLEAN:
+			itConst.c->tt = LUA_TBOOLEAN;
+			itConst.c->value.b = item->text().toUInt(nullptr, 16);
+			break;
+		}
+	});
+
+	this->ui->tableViewConst->setModel(model);
 }
